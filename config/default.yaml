@@ -1,0 +1,34 @@
+app:
+  name: "Enterprise Retail Sales Analytics Platform"
+  version: "1.0.0"
+  env: "development"
+  debug: true
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  quarantine_dir: "data/quarantine"
+  logs_dir: "logs"
+  seed: 42
+  default_num_customers: 10000
+  default_num_products: 500
+  default_num_orders: 100000
+  start_date: "2023-01-01"
+  end_date: "2024-12-31"
+
+analytics:
+  pareto_top_percent: 0.20
+  abc_class_a_threshold: 0.70
+  abc_class_b_threshold: 0.90
+  outlier_iqr_multiplier: 1.5
+  outlier_zscore_threshold: 3.0
+
+streaming:
+  feed_interval_seconds: 2.0
+  buffer_capacity: 1000
+  batch_window_seconds: 10.0
+
+logging:
+  level: "INFO"
+  format: "json"
+  log_file: "logs/app.log"
