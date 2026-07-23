@@ -5,8 +5,8 @@ Regions, Stores, Customers, Time Dimension, Orders, Returns, Discounts, Shipping
 saves outputs to CSV and Parquet formats in data/raw/, and validates referential integrity.
 """
 
-from pathlib import Path
 import time
+from pathlib import Path
 from typing import Any
 
 from config.settings import get_settings

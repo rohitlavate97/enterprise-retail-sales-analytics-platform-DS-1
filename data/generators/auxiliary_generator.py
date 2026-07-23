@@ -52,9 +52,11 @@ class AuxiliaryGenerator:
         num_returns = len(returned_orders)
 
         if num_returns == 0:
-            return pd.DataFrame(columns=["return_id", "order_id", "return_date", "return_reason", "refund_amount"])
+            return pd.DataFrame(
+                columns=["return_id", "order_id", "return_date", "return_reason", "refund_amount"]
+            )
 
-        return_ids = [f"RET-{i+1:06d}" for i in range(num_returns)]
+        return_ids = [f"RET-{i + 1:06d}" for i in range(num_returns)]
         order_ids = returned_orders["order_id"].tolist()
         refund_amounts = returned_orders["total_amount"].tolist()
 
@@ -95,9 +97,11 @@ class AuxiliaryGenerator:
         num_discounts = len(discounted_orders)
 
         if num_discounts == 0:
-            return pd.DataFrame(columns=["discount_id", "order_id", "promo_code", "discount_percent"])
+            return pd.DataFrame(
+                columns=["discount_id", "order_id", "promo_code", "discount_percent"]
+            )
 
-        discount_ids = [f"DSC-{i+1:06d}" for i in range(num_discounts)]
+        discount_ids = [f"DSC-{i + 1:06d}" for i in range(num_discounts)]
         order_ids = discounted_orders["order_id"].tolist()
         promos = self.rng.choice(PROMO_CODES, size=num_discounts)
 
@@ -127,7 +131,7 @@ class AuxiliaryGenerator:
         logger.info("Generating shipping logistics records for all orders...")
 
         num_orders = len(orders_df)
-        shipping_ids = [f"SHP-{i+1:07d}" for i in range(num_orders)]
+        shipping_ids = [f"SHP-{i + 1:07d}" for i in range(num_orders)]
         order_ids = orders_df["order_id"].tolist()
 
         modes = self.rng.choice(SHIPPING_MODES, size=num_orders, p=SHIPPING_MODE_PROBS)

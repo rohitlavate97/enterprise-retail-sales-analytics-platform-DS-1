@@ -1,7 +1,7 @@
 """Performance benchmark script for dataset generation scale testing.
 
 Measures memory consumption (tracemalloc) and execution time across multiple scale thresholds
-(10k, 50k, 100k, 250k order rows) and writes benchmark findings to docs/benchmarks/data_generator.md.
+and writes benchmark findings to docs/benchmarks/data_generator.md.
 """
 
 from pathlib import Path
@@ -12,8 +12,8 @@ import tracemalloc
 # Ensure root workspace is on python path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from data.generators.orchestrator import DatasetOrchestrator
 from core.logging import get_logger
+from data.generators.orchestrator import DatasetOrchestrator
 
 logger = get_logger("scripts.benchmark_generator")
 
@@ -36,7 +36,7 @@ def run_benchmarks() -> None:
         num_prod = max(100, num_orders // 200)
 
         orchestrator = DatasetOrchestrator(seed=42, output_dir=temp_raw)
-        datasets = orchestrator.generate_all(
+        _ = orchestrator.generate_all(
             num_orders=num_orders,
             num_customers=num_cust,
             num_products=num_prod,
@@ -44,7 +44,7 @@ def run_benchmarks() -> None:
         )
 
         elapsed = time.perf_counter() - start_time
-        current_mem, peak_mem = tracemalloc.get_traced_memory()
+        _, peak_mem = tracemalloc.get_traced_memory()
         tracemalloc.stop()
 
         peak_mb = peak_mem / (1024 * 1024)
@@ -69,24 +69,26 @@ def run_benchmarks() -> None:
 
     # Clean up benchmark temp files
     if temp_raw.exists():
-        for f in temp_raw.glob("*"):
-            f.unlink()
+        for file_path in temp_raw.glob("*"):
+            file_path.unlink()
         temp_raw.rmdir()
 
     # Generate Markdown documentation artifact
     md_content = ["# Dataset Generator Benchmark Results\n"]
-    md_content.append("Benchmark performed across multiple dataset scale thresholds (seed=42).\n")
+    md_content.append("Benchmark performed across dataset scale thresholds (seed=42).\n")
     md_content.append("| Orders Count | Generation Time (s) | Peak Memory (MB) | Throughput (rows/s) |")
     md_content.append("| :--- | :--- | :--- | :--- |")
 
     for r in results:
-        md_content.append(
-            f"| {r['num_orders']:,} | {r['elapsed_seconds']}s | {r['peak_memory_mb']} MB | {r['throughput_rows_per_sec']:,} |"
-        )
+        orders_fmt = f"{r['num_orders']:,}"
+        time_fmt = f"{r['elapsed_seconds']}s"
+        mem_fmt = f"{r['peak_memory_mb']} MB"
+        tput_fmt = f"{r['throughput_rows_per_sec']:,}"
+        md_content.append(f"| {orders_fmt} | {time_fmt} | {mem_fmt} | {tput_fmt} |")
 
     md_path = doc_dir / "data_generator.md"
-    with open(md_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(md_content) + "\n")
+    with open(md_path, "w", encoding="utf-8") as file_handle:
+        file_handle.write("\n".join(md_content) + "\n")
 
     logger.info("Benchmark report written to %s", md_path)
 

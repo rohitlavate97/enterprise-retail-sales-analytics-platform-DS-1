@@ -15,16 +15,64 @@ from core.logging import get_logger
 logger = get_logger(__name__)
 
 FIRST_NAMES = [
-    "James", "Mary", "John", "Patricia", "Robert", "Jennifer", "Michael", "Linda",
-    "William", "Elizabeth", "David", "Barbara", "Richard", "Susan", "Joseph", "Jessica",
-    "Thomas", "Sarah", "Charles", "Karen", "Christopher", "Nancy", "Daniel", "Lisa",
-    "Matthew", "Betty", "Anthony", "Margaret", "Mark", "Sandra", "Donald", "Ashley",
+    "James",
+    "Mary",
+    "John",
+    "Patricia",
+    "Robert",
+    "Jennifer",
+    "Michael",
+    "Linda",
+    "William",
+    "Elizabeth",
+    "David",
+    "Barbara",
+    "Richard",
+    "Susan",
+    "Joseph",
+    "Jessica",
+    "Thomas",
+    "Sarah",
+    "Charles",
+    "Karen",
+    "Christopher",
+    "Nancy",
+    "Daniel",
+    "Lisa",
+    "Matthew",
+    "Betty",
+    "Anthony",
+    "Margaret",
+    "Mark",
+    "Sandra",
+    "Donald",
+    "Ashley",
 ]
 
 LAST_NAMES = [
-    "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
-    "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson",
-    "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson",
+    "Smith",
+    "Johnson",
+    "Williams",
+    "Brown",
+    "Jones",
+    "Garcia",
+    "Miller",
+    "Davis",
+    "Rodriguez",
+    "Martinez",
+    "Hernandez",
+    "Lopez",
+    "Gonzalez",
+    "Wilson",
+    "Anderson",
+    "Thomas",
+    "Taylor",
+    "Moore",
+    "Jackson",
+    "Martin",
+    "Lee",
+    "Perez",
+    "Thompson",
 ]
 
 DOMAINS = ["gmail.com", "yahoo.com", "outlook.com", "corp.net", "enterprise.org"]
@@ -49,19 +97,17 @@ class CustomerGenerator:
         Returns:
             Pandas DataFrame conforming to CustomerSchema.
         """
-        logger.info(
-            "Generating %d customer records with seed=%d...", num_customers, self.seed
-        )
+        logger.info("Generating %d customer records with seed=%d...", num_customers, self.seed)
 
         customer_ids = [f"CUST-{i+1:06d}" for i in range(num_customers)]
         firsts = self.rng.choice(FIRST_NAMES, size=num_customers)
         lasts = self.rng.choice(LAST_NAMES, size=num_customers)
-        names = [f"{f} {l}" for f, l in zip(firsts, lasts, strict=False)]
+        names = [f"{fst} {lst}" for fst, lst in zip(firsts, lasts, strict=False)]
 
         domains = self.rng.choice(DOMAINS, size=num_customers)
         emails = [
-            f"{f.lower()}.{l.lower()}{self.rng.integers(10, 999)}@{d}"
-            for f, l, d in zip(firsts, lasts, domains, strict=False)
+            f"{fst.lower()}.{lst.lower()}{self.rng.integers(10, 999)}@{d}"
+            for fst, lst, d in zip(firsts, lasts, domains, strict=False)
         ]
 
         segments = self.rng.choice(SEGMENTS, size=num_customers, p=SEGMENT_PROBS)

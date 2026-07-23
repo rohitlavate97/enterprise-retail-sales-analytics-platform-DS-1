@@ -14,11 +14,36 @@ from core.logging import get_logger
 logger = get_logger(__name__)
 
 REGIONS_DATA = [
-    {"region_id": "REG-NORTH", "region_name": "North", "country": "USA", "manager_name": "Alice Vance"},
-    {"region_id": "REG-SOUTH", "region_name": "South", "country": "USA", "manager_name": "Bob Miller"},
-    {"region_id": "REG-EAST", "region_name": "East", "country": "USA", "manager_name": "Carol Danvers"},
-    {"region_id": "REG-WEST", "region_name": "West", "country": "USA", "manager_name": "David Banner"},
-    {"region_id": "REG-CENTRAL", "region_name": "Central", "country": "USA", "manager_name": "Eve Polastri"},
+    {
+        "region_id": "REG-NORTH",
+        "region_name": "North",
+        "country": "USA",
+        "manager_name": "Alice Vance",
+    },
+    {
+        "region_id": "REG-SOUTH",
+        "region_name": "South",
+        "country": "USA",
+        "manager_name": "Bob Miller",
+    },
+    {
+        "region_id": "REG-EAST",
+        "region_name": "East",
+        "country": "USA",
+        "manager_name": "Carol Danvers",
+    },
+    {
+        "region_id": "REG-WEST",
+        "region_name": "West",
+        "country": "USA",
+        "manager_name": "David Banner",
+    },
+    {
+        "region_id": "REG-CENTRAL",
+        "region_name": "Central",
+        "country": "USA",
+        "manager_name": "Eve Polastri",
+    },
 ]
 
 STORE_TYPES = ["Superstore", "Express", "Flagship", "Online"]
@@ -51,12 +76,10 @@ class StoreGenerator:
         Returns:
             Pandas DataFrame conforming to StoreSchema.
         """
-        logger.info(
-            "Generating %d store records with seed=%d...", num_stores, self.seed
-        )
+        logger.info("Generating %d store records with seed=%d...", num_stores, self.seed)
 
         region_ids = regions_df["region_id"].tolist()
-        store_ids = [f"STR-{i+1:03d}" for i in range(num_stores)]
+        store_ids = [f"STR-{i + 1:03d}" for i in range(num_stores)]
         assigned_regions = self.rng.choice(region_ids, size=num_stores)
         store_types = self.rng.choice(STORE_TYPES, size=num_stores, p=STORE_TYPE_PROBS)
 
@@ -65,7 +88,7 @@ class StoreGenerator:
 
         for idx, (r_id, st_type) in enumerate(zip(assigned_regions, store_types, strict=False)):
             region_code = r_id.split("-")[1]
-            store_names.append(f"Store {idx+1:03d} ({region_code} {st_type})")
+            store_names.append(f"Store {idx + 1:03d} ({region_code} {st_type})")
 
             if st_type == "Superstore":
                 sqft = int(self.rng.integers(50000, 120000))

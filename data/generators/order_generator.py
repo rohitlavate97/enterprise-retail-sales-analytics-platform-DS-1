@@ -53,16 +53,14 @@ class OrderGenerator:
         Args:
             num_orders: Total number of order transaction rows.
             customers_df: Generated customers DataFrame.
-            products_df: Generated products DataFrame (includes unit_price, cost_price, popularity_score).
+            products_df: Generated products DataFrame (includes prices & popularity).
             stores_df: Generated stores DataFrame.
             time_df: Generated time dimension DataFrame.
 
         Returns:
             Pandas DataFrame conforming to OrderSchema.
         """
-        logger.info(
-            "Generating %d order records with seed=%d...", num_orders, self.seed
-        )
+        logger.info("Generating %d order records with seed=%d...", num_orders, self.seed)
 
         customer_ids = customers_df["customer_id"].to_numpy()
         store_ids = stores_df["store_id"].to_numpy()

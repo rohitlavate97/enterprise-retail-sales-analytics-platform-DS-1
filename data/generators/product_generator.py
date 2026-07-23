@@ -18,20 +18,80 @@ CATEGORIES_DATA = [
     {"category_id": "CAT-002", "category_name": "Apparel", "department": "Fashion"},
     {"category_id": "CAT-003", "category_name": "Home & Kitchen", "department": "Home"},
     {"category_id": "CAT-004", "category_name": "Furniture", "department": "Home"},
-    {"category_id": "CAT-005", "category_name": "Beauty & Personal Care", "department": "Personal Care"},
+    {
+        "category_id": "CAT-005",
+        "category_name": "Beauty & Personal Care",
+        "department": "Personal Care",
+    },
     {"category_id": "CAT-006", "category_name": "Sports & Outdoors", "department": "Outdoors"},
     {"category_id": "CAT-007", "category_name": "Books & Stationery", "department": "Media"},
 ]
 
-PRODUCT_ADJECTIVES = ["Premium", "Ultra", "Ergonomic", "Smart", "Eco-Friendly", "Pro", "Compact", "Deluxe"]
+PRODUCT_ADJECTIVES = [
+    "Premium",
+    "Ultra",
+    "Ergonomic",
+    "Smart",
+    "Eco-Friendly",
+    "Pro",
+    "Compact",
+    "Deluxe",
+]
 PRODUCT_NOUNS = {
-    "CAT-001": ["Wireless Headphones", "4K Monitor", "Smartphone", "Bluetooth Speaker", "Laptop Stand", "Smartwatch"],
-    "CAT-002": ["Cotton T-Shirt", "Denim Jeans", "Running Shoes", "Leather Jacket", "Wool Sweater", "Sports Socks"],
-    "CAT-003": ["Coffee Maker", "Blender", "Non-Stick Frying Pan", "Air Fryer", "Chef Knife Set", "Stainless Water Bottle"],
-    "CAT-004": ["Office Chair", "Standing Desk", "Bookshelf", "Dining Table", "Sofa Bed", "Table Lamp"],
-    "CAT-005": ["Facial Cleanser", "Moisturizing Cream", "Electric Toothbrush", "Hair Dryer", "Sunscreen SPF50"],
-    "CAT-006": ["Yoga Mat", "Dumbbell Set", "Camping Tent", "Treadmill", "Bicycle Helmet", "Resistance Bands"],
-    "CAT-007": ["Hardcover Notebook", "Fountain Pen", "Desk Organizer", "Ergonomic Pen Set", "Planner 2024"],
+    "CAT-001": [
+        "Wireless Headphones",
+        "4K Monitor",
+        "Smartphone",
+        "Bluetooth Speaker",
+        "Laptop Stand",
+        "Smartwatch",
+    ],
+    "CAT-002": [
+        "Cotton T-Shirt",
+        "Denim Jeans",
+        "Running Shoes",
+        "Leather Jacket",
+        "Wool Sweater",
+        "Sports Socks",
+    ],
+    "CAT-003": [
+        "Coffee Maker",
+        "Blender",
+        "Non-Stick Frying Pan",
+        "Air Fryer",
+        "Chef Knife Set",
+        "Stainless Water Bottle",
+    ],
+    "CAT-004": [
+        "Office Chair",
+        "Standing Desk",
+        "Bookshelf",
+        "Dining Table",
+        "Sofa Bed",
+        "Table Lamp",
+    ],
+    "CAT-005": [
+        "Facial Cleanser",
+        "Moisturizing Cream",
+        "Electric Toothbrush",
+        "Hair Dryer",
+        "Sunscreen SPF50",
+    ],
+    "CAT-006": [
+        "Yoga Mat",
+        "Dumbbell Set",
+        "Camping Tent",
+        "Treadmill",
+        "Bicycle Helmet",
+        "Resistance Bands",
+    ],
+    "CAT-007": [
+        "Hardcover Notebook",
+        "Fountain Pen",
+        "Desk Organizer",
+        "Ergonomic Pen Set",
+        "Planner 2024",
+    ],
 }
 
 
@@ -61,12 +121,10 @@ class ProductGenerator:
         Returns:
             Pandas DataFrame conforming to ProductSchema.
         """
-        logger.info(
-            "Generating %d product records with seed=%d...", num_products, self.seed
-        )
+        logger.info("Generating %d product records with seed=%d...", num_products, self.seed)
 
         category_ids = categories_df["category_id"].tolist()
-        product_ids = [f"PRD-{i+1001:05d}" for i in range(num_products)]
+        product_ids = [f"PRD-{i + 1001:05d}" for i in range(num_products)]
 
         assigned_cats = self.rng.choice(category_ids, size=num_products)
         product_names: list[str] = []
@@ -91,7 +149,9 @@ class ProductGenerator:
         # Pareto distribution for product popularity (alpha = 1.16 gives ~80/20 ratio)
         pareto_raw = self.rng.pareto(a=1.16, size=num_products)
         # Normalize between 0.0001 and 1.0
-        popularity = np.round((pareto_raw - pareto_raw.min()) / (pareto_raw.max() - pareto_raw.min() + 1e-8), 4)
+        popularity = np.round(
+            (pareto_raw - pareto_raw.min()) / (pareto_raw.max() - pareto_raw.min() + 1e-8), 4
+        )
         popularity = np.clip(popularity, 0.001, 1.0)
 
         stock_quantities = self.rng.integers(10, 1000, size=num_products)

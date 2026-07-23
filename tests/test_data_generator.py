@@ -9,7 +9,6 @@ from pandas.testing import assert_frame_equal
 from data.generators.customer_generator import CustomerGenerator
 from data.generators.orchestrator import DatasetOrchestrator
 from data.generators.product_generator import CategoryGenerator, ProductGenerator
-from data.generators.store_generator import RegionGenerator, StoreGenerator
 
 
 def test_seed_reproducibility() -> None:
@@ -39,7 +38,7 @@ def test_product_pareto_reproducibility() -> None:
 
 
 def test_referential_integrity() -> None:
-    """Test that all foreign keys in orders, returns, discounts, and shipping resolve valid primary keys."""
+    """Test foreign keys in orders, returns, discounts, and shipping resolve valid keys."""
     orchestrator = DatasetOrchestrator(seed=999)
     # Generate small test dataset in memory
     datasets = orchestrator.generate_all(
@@ -75,16 +74,8 @@ def test_referential_integrity() -> None:
 def test_pareto_order_volume_concentration() -> None:
     """Test that product demand exhibits Pareto 80/20 concentration."""
     cats_df = CategoryGenerator.generate()
-    regions_df = RegionGenerator.generate()
-
-    store_gen = StoreGenerator(seed=42)
-    stores_df = store_gen.generate(num_stores=10, regions_df=regions_df)
-
     prod_gen = ProductGenerator(seed=42)
     products_df = prod_gen.generate(num_products=100, categories_df=cats_df)
-
-    cust_gen = CustomerGenerator(seed=42)
-    cust_df = cust_gen.generate(num_customers=500, region_ids=regions_df["region_id"].tolist())
 
     orchestrator = DatasetOrchestrator(seed=42)
     datasets = orchestrator.generate_all(
