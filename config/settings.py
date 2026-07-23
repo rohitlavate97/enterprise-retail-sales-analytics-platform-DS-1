@@ -4,6 +4,7 @@ Provides strongly-typed, validated application settings with reproducible defaul
 environment variable overrides, and single-source-of-truth configuration management.
 """
 
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -63,6 +64,29 @@ class LoggingConfig(BaseModel):
     log_file: Path = Path("logs/app.log")
 
 
+def _deep_update(base: dict[str, Any], update: dict[str, Any]) -> dict[str, Any]:
+    """Recursively update a dictionary."""
+    for key, value in update.items():
+        if isinstance(value, dict) and key in base and isinstance(base[key], dict):
+            _deep_update(base[key], value)
+        else:
+            base[key] = value
+    return base
+
+
+def _get_env_overrides(prefix: str = "RETAIL_", delimiter: str = "__") -> dict[str, Any]:
+    """Extract environment variable overrides matching prefix."""
+    overrides: dict[str, Any] = {}
+    for env_name, env_val in os.environ.items():
+        if env_name.startswith(prefix):
+            key_path = env_name[len(prefix) :].lower().split(delimiter)
+            curr = overrides
+            for part in key_path[:-1]:
+                curr = curr.setdefault(part, {})
+            curr[key_path[-1]] = env_val
+    return overrides
+
+
 class Settings(BaseSettings):
     """Master application settings model.
 
@@ -84,17 +108,20 @@ class Settings(BaseSettings):
 
     @classmethod
     def load_from_yaml(cls, yaml_path: Path | str | None = None) -> "Settings":
-        """Factory method to instantiate Settings populated from a YAML file."""
+        """Factory method to instantiate Settings populated from YAML file and env overrides."""
         if yaml_path is None:
             yaml_path = Path(__file__).parent / "default.yaml"
         else:
             yaml_path = Path(yaml_path)
 
+        data: dict[str, Any] = {}
         if yaml_path.is_file():
             with open(yaml_path, encoding="utf-8") as f:
-                data: dict[str, Any] = yaml.safe_load(f) or {}
-            return cls(**data)
-        return cls()
+                data = yaml.safe_load(f) or {}
+
+        env_overrides = _get_env_overrides()
+        merged = _deep_update(data, env_overrides)
+        return cls(**merged)
 
 
 @lru_cache(maxsize=1)
