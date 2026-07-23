@@ -1,0 +1,25 @@
+services:
+  retail-analytics-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: retail_analytics_platform
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+      - RETAIL_ENV=development
+    restart: unless-stopped
+
+  pytest-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: retail_analytics_pytest
+    command: pytest
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
