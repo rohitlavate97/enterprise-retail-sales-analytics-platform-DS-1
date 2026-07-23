@@ -10,13 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Initialized Phase 1 Project Setup:
-  - Directory skeleton (`config/`, `core/`, `utils/`, `services/`, `data/`, `pipelines/`, `analytics/`, `streaming/`, `dashboard/`, `tests/`, `docs/`, `docker/`, `.github/`).
-  - Pinned dependencies configuration in `pyproject.toml` supporting Python 3.12+, NumPy, Pandas, Polars, Matplotlib, Plotly, Streamlit, Pydantic, PyYAML, Pytest, Ruff, Black, and MyPy.
-  - Pre-commit configuration (`.pre-commit-config.yaml`) mirroring automated quality gates.
-  - Continuous Integration pipeline via GitHub Actions (`.github/workflows/ci.yml`).
-  - Docker containerization setup (`Dockerfile` and `docker-compose.yml`).
-  - Strongly-typed application configuration module using Pydantic Settings & PyYAML (`config/settings.py`, `config/default.yaml`).
-  - Structured JSON and console logging factory (`core/logging.py`).
-  - Automated unit test suite for configuration loading and logging functionality (`tests/test_config.py`, `tests/test_logging.py`).
-  - Initial project documentation and architecture overview (`README.md`).
+- Completed Phase 2 Synthetic Dataset Generator (`v0.2-data-generator`):
+  - Strongly-typed Pydantic entity schemas for Customers, Products, Categories, Stores, Regions, Payment Methods, Time Dimension, Orders, Returns, Discounts, and Shipping (`data/generators/schemas.py`).
+  - Seeded, reproducible Customer generator with market segment distribution and beta-distributed churn risk scores (`data/generators/customer_generator.py`).
+  - Product & Category generator incorporating Pareto popularity weighting ($\alpha=1.16$, 80/20 demand distribution) (`data/generators/product_generator.py`).
+  - Store & Region generator with regional demand multipliers and store format sizing (`data/generators/store_generator.py`).
+  - Time Dimension generator supporting calendar attributes, weekend flags, and major retail holiday indicators (`data/generators/time_generator.py`).
+  - Transactional Order generator maintaining strict referential integrity across all entities with Poisson quantity distributions and gross/net margin calculations (`data/generators/order_generator.py`).
+  - Auxiliary generators for order Returns, Discount promo tracking, and Shipping logistics (`data/generators/auxiliary_generator.py`).
+  - Dataset generation orchestrator module (`data/generators/orchestrator.py`) and CLI entry point (`scripts/generate_dataset.py`) saving outputs to CSV and Parquet formats in `data/raw/`.
+  - Generator performance benchmark script (`scripts/benchmark_generator.py`) and benchmark results documentation (`docs/benchmarks/data_generator.md`) demonstrating ~8,700 rows/s generation throughput.
+  - Unit test suite for seed reproducibility, Pareto demand concentration, and relational referential integrity (`tests/test_data_generator.py`).
+  - Comprehensive relational ER diagram (Mermaid) and data dictionary documentation (`docs/schemas_and_er.md`).
+
+- Phase 1 Project Setup:
+  - Directory skeleton, pinned dependencies in `pyproject.toml`, `.pre-commit-config.yaml`, GitHub Actions CI (`.github/workflows/ci.yml`), Docker containerization (`Dockerfile`, `docker-compose.yml`), Pydantic Settings configuration (`config/settings.py`), structured logging (`core/logging.py`), and test suite.
