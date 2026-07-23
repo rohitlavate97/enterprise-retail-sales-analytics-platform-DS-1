@@ -99,7 +99,7 @@ class CustomerGenerator:
         """
         logger.info("Generating %d customer records with seed=%d...", num_customers, self.seed)
 
-        customer_ids = [f"CUST-{i+1:06d}" for i in range(num_customers)]
+        customer_ids = [f"CUST-{i + 1:06d}" for i in range(num_customers)]
         firsts = self.rng.choice(FIRST_NAMES, size=num_customers)
         lasts = self.rng.choice(LAST_NAMES, size=num_customers)
         names = [f"{fst} {lst}" for fst, lst in zip(firsts, lasts, strict=False)]

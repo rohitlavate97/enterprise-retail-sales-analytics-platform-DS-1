@@ -102,7 +102,7 @@ class OrderGenerator:
         cost_amounts = np.round(cost_prices * quantities, 2)
         profit_amounts = np.round(total_amounts - cost_amounts, 2)
 
-        order_ids = [f"ORD-{i+1000001:07d}" for i in range(num_orders)]
+        order_ids = [f"ORD-{i + 1000001:07d}" for i in range(num_orders)]
 
         data: dict[str, Any] = {
             "order_id": order_ids,
