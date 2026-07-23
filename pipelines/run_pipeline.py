@@ -4,8 +4,8 @@ Ties together all pipeline stages into a single runnable flow:
 Load -> Validate & Quarantine -> Deduplicate -> Handle Nulls -> Detect Outliers -> Optimize.
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 from typing import Any
 
 # Ensure root workspace is on python path

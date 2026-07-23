@@ -5,6 +5,8 @@ correlation, correlation / covariance matrices, and a full
 descriptive-statistics summary — all using vectorized NumPy.
 """
 
+from collections.abc import Mapping
+
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -112,7 +114,7 @@ class StatisticalAnalyzer:
 
     @staticmethod
     def correlation_matrix(
-        data_dict: dict[str, ArrayLike],
+        data_dict: Mapping[str, ArrayLike],
     ) -> tuple[np.ndarray, list[str]]:
         """Compute pairwise Pearson correlation matrix.
 
@@ -129,7 +131,7 @@ class StatisticalAnalyzer:
 
     @staticmethod
     def covariance_matrix(
-        data_dict: dict[str, ArrayLike],
+        data_dict: Mapping[str, ArrayLike],
     ) -> tuple[np.ndarray, list[str]]:
         """Compute pairwise covariance matrix.
 

@@ -24,7 +24,15 @@ def sample_orders_df() -> pd.DataFrame:
     """Fixture producing a sample orders dataframe with deliberate anomalies."""
     data = {
         "order_id": ["ORD-001", "ORD-002", "ORD-003", "ORD-003", "ORD-005", "ORD-006", None],
-        "customer_id": ["CUST-01", "CUST-02", "CUST-03", "CUST-03", "CUST-05", "CUST-06", "CUST-07"],
+        "customer_id": [
+            "CUST-01",
+            "CUST-02",
+            "CUST-03",
+            "CUST-03",
+            "CUST-05",
+            "CUST-06",
+            "CUST-07",
+        ],
         "product_id": ["PRD-01", "PRD-02", "PRD-03", "PRD-03", "PRD-05", "PRD-06", "PRD-07"],
         "store_id": ["STR-01", "STR-01", "STR-02", "STR-02", "STR-01", "STR-02", "STR-01"],
         "date_key": [20230101, 20230102, 20230103, 20230103, 20230105, 20230106, 20230107],
@@ -142,8 +150,8 @@ def test_pipeline_orchestrator_end_to_end(tmp_path: Path) -> None:
     # Create dummy raw orders parquet file
     data = {
         "order_id": [f"ORD-{i:03d}" for i in range(50)],
-        "customer_id": [f"CUST-{i%10:02d}" for i in range(50)],
-        "product_id": [f"PRD-{i%5:02d}" for i in range(50)],
+        "customer_id": [f"CUST-{i % 10:02d}" for i in range(50)],
+        "product_id": [f"PRD-{i % 5:02d}" for i in range(50)],
         "store_id": ["STR-01"] * 50,
         "date_key": [20230101] * 50,
         "quantity": [2] * 50,

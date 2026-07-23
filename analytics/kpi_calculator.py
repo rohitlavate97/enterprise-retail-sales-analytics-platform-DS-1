@@ -60,7 +60,8 @@ class KPICalculator:
         """
         p = np.asarray(profit, dtype=np.float64)
         r = np.asarray(revenue, dtype=np.float64)
-        return np.where(r != 0, (p / r) * 100.0, 0.0)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.where(r != 0, (p / r) * 100.0, 0.0)
 
     @staticmethod
     def calculate_gross_margin(
@@ -81,7 +82,8 @@ class KPICalculator:
         """
         r = np.asarray(revenue, dtype=np.float64)
         c = np.asarray(cost, dtype=np.float64)
-        return np.where(r != 0, ((r - c) / r) * 100.0, 0.0)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.where(r != 0, ((r - c) / r) * 100.0, 0.0)
 
     @staticmethod
     def calculate_yoy_growth(
@@ -102,7 +104,8 @@ class KPICalculator:
         """
         cur = np.asarray(current_period, dtype=np.float64)
         prev = np.asarray(previous_period, dtype=np.float64)
-        return np.where(prev != 0, ((cur - prev) / prev) * 100.0, 0.0)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.where(prev != 0, ((cur - prev) / prev) * 100.0, 0.0)
 
     @staticmethod
     def calculate_average_order_value(
@@ -123,7 +126,8 @@ class KPICalculator:
         """
         rev = np.asarray(total_revenue, dtype=np.float64)
         n = np.asarray(num_orders, dtype=np.float64)
-        return np.where(n != 0, rev / n, 0.0)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.where(n != 0, rev / n, 0.0)
 
     @staticmethod
     def calculate_discount_depth(
@@ -144,7 +148,8 @@ class KPICalculator:
         """
         d = np.asarray(discount_amount, dtype=np.float64)
         p = np.asarray(original_price, dtype=np.float64)
-        return np.where(p != 0, (d / p) * 100.0, 0.0)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.where(p != 0, (d / p) * 100.0, 0.0)
 
     @staticmethod
     def calculate_return_rate(
@@ -165,4 +170,5 @@ class KPICalculator:
         """
         ret = np.asarray(returns_count, dtype=np.float64)
         ord_ = np.asarray(orders_count, dtype=np.float64)
-        return np.where(ord_ != 0, (ret / ord_) * 100.0, 0.0)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.where(ord_ != 0, (ret / ord_) * 100.0, 0.0)

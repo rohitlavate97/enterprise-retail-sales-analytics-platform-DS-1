@@ -41,11 +41,7 @@ class OutlierDetector:
         Returns:
             Tuple of (processed_df, outlier_boolean_mask).
         """
-        k = (
-            multiplier
-            if multiplier is not None
-            else self.settings.analytics.outlier_iqr_multiplier
-        )
+        k = multiplier if multiplier is not None else self.settings.analytics.outlier_iqr_multiplier
         series = df[column]
 
         q1 = series.quantile(0.25)
@@ -73,9 +69,7 @@ class OutlierDetector:
         if action == "flag":
             processed_df[f"{column}_is_outlier"] = outlier_mask.astype(int)
         elif action == "clip":
-            processed_df[column] = processed_df[column].clip(
-                lower=lower_bound, upper=upper_bound
-            )
+            processed_df[column] = processed_df[column].clip(lower=lower_bound, upper=upper_bound)
         elif action == "quarantine":
             processed_df = processed_df[~outlier_mask].copy()
 
@@ -102,9 +96,7 @@ class OutlierDetector:
             Tuple of (processed_df, outlier_boolean_mask).
         """
         z_thresh = (
-            threshold
-            if threshold is not None
-            else self.settings.analytics.outlier_zscore_threshold
+            threshold if threshold is not None else self.settings.analytics.outlier_zscore_threshold
         )
         series = df[column]
         mean = series.mean()
@@ -133,9 +125,7 @@ class OutlierDetector:
         elif action == "clip":
             lower_bound = mean - z_thresh * std
             upper_bound = mean + z_thresh * std
-            processed_df[column] = processed_df[column].clip(
-                lower=lower_bound, upper=upper_bound
-            )
+            processed_df[column] = processed_df[column].clip(lower=lower_bound, upper=upper_bound)
         elif action == "quarantine":
             processed_df = processed_df[~outlier_mask].copy()
 
