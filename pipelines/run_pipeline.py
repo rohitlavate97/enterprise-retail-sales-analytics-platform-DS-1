@@ -1,7 +1,7 @@
 """Production Data Pipeline Orchestrator.
 
 Ties together all pipeline stages into a single runnable flow:
-Load -> Validate & Quarantine -> Deduplicate -> Handle Nulls -> Detect Outliers -> Optimize Memory -> Save Processed.
+Load -> Validate & Quarantine -> Deduplicate -> Handle Nulls -> Detect Outliers -> Optimize.
 """
 
 from pathlib import Path
@@ -10,8 +10,6 @@ from typing import Any
 
 # Ensure root workspace is on python path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
-import pandas as pd
 
 from config.settings import get_settings
 from core.logging import get_logger
@@ -69,7 +67,7 @@ class DataPipelineOrchestrator:
 
         # 4. Explicit Null Handling Strategy
         with stage_execution_context("4. Per-Column Null Handling"):
-            null_strategies = {
+            null_strategies: dict[str, dict[str, Any]] = {
                 "order_id": {"action": "drop"},
                 "customer_id": {"action": "drop"},
                 "discount_amount": {"action": "fill_value", "value": 0.0},
@@ -109,10 +107,12 @@ def main() -> None:
     """CLI entry point for running the data pipeline."""
     orchestrator = DataPipelineOrchestrator()
     report = orchestrator.run_pipeline()
+    saved = report["memory"]["savings_mb"]
+    pct = report["memory"]["reduction_percent"]
     print("Pipeline Execution Report:")
     print(f"  Processed Rows: {report['processed_rows']:,}")
     print(f"  Quarantined Rows: {report['quarantined_rows']:,}")
-    print(f"  RAM Saved: {report['memory']['savings_mb']} MB ({report['memory']['reduction_percent']}%)")
+    print(f"  RAM Saved: {saved} MB ({pct}%)")
 
 
 if __name__ == "__main__":

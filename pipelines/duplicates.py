@@ -45,7 +45,7 @@ class DuplicateDetector:
 
         num_removed = num_initial - len(clean_df)
         logger.info(
-            "Duplicate detection complete: %d initial, %d duplicates isolated, %d clean rows retained.",
+            "Deduplication complete: %d initial, %d duplicates, %d clean rows retained.",
             num_initial,
             num_removed,
             len(clean_df),

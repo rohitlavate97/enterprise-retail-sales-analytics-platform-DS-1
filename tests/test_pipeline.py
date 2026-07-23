@@ -5,6 +5,7 @@ statistical outlier detection (IQR & Z-score), and memory optimization pass.
 """
 
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import pytest
@@ -83,7 +84,7 @@ def test_null_handler_strategies() -> None:
         }
     )
 
-    strategies = {
+    strategies: dict[str, dict[str, Any]] = {
         "order_id": {"action": "drop"},
         "discount_amount": {"action": "fill_value", "value": 0.0},
         "profit_amount": {"action": "impute_median"},

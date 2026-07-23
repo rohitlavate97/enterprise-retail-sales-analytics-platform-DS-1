@@ -1,13 +1,13 @@
 """Head-to-head Pandas vs. Polars benchmark suite.
 
-Benchmarks real analytics operations (file load, filtering, groupby aggregation, join)
-on production-scale data (100,000+ orders) and writes comparative results to docs/benchmarks/pandas_vs_polars.md.
+Benchmarks real analytics operations on production-scale data (100,000+ orders)
+and writes comparative results to docs/benchmarks/pandas_vs_polars.md.
 """
 
-from pathlib import Path
 import sys
 import time
 import tracemalloc
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -36,9 +36,7 @@ def run_benchmarks() -> None:
 
     results: list[dict[str, Any]] = []
 
-    # -------------------------------------------------------------
-    # Operation 1: File Ingestion (Parquet Load)
-    # -------------------------------------------------------------
+    # 1. File Ingestion (Parquet Load)
     tracemalloc.start()
     t0 = time.perf_counter()
     df_pd_orders = pd.read_parquet(orders_path)
@@ -66,9 +64,7 @@ def run_benchmarks() -> None:
         }
     )
 
-    # -------------------------------------------------------------
-    # Operation 2: Filter Predicate
-    # -------------------------------------------------------------
+    # 2. Predicate Filter
     tracemalloc.start()
     t0 = time.perf_counter()
     _ = df_pd_orders[(df_pd_orders["total_amount"] > 100.0) & (df_pd_orders["quantity"] >= 2)]
@@ -94,9 +90,7 @@ def run_benchmarks() -> None:
         }
     )
 
-    # -------------------------------------------------------------
-    # Operation 3: GroupBy Aggregation
-    # -------------------------------------------------------------
+    # 3. GroupBy Aggregation
     tracemalloc.start()
     t0 = time.perf_counter()
     _ = (
@@ -134,9 +128,7 @@ def run_benchmarks() -> None:
         }
     )
 
-    # -------------------------------------------------------------
-    # Operation 4: Relational Join
-    # -------------------------------------------------------------
+    # 4. Relational Join
     tracemalloc.start()
     t0 = time.perf_counter()
     _ = pd.merge(df_pd_orders, df_pd_cust, on="customer_id", how="inner")
@@ -162,24 +154,33 @@ def run_benchmarks() -> None:
         }
     )
 
-    # -------------------------------------------------------------
-    # Generate Output Markdown Documentation Artifact
-    # -------------------------------------------------------------
+    # Output Markdown Documentation Artifact
     doc_dir = Path("docs/benchmarks")
     doc_dir.mkdir(parents=True, exist_ok=True)
     md_path = doc_dir / "pandas_vs_polars.md"
 
-    md_lines = ["# Pandas vs. Polars Performance Benchmark Results\n"]
-    md_lines.append("Benchmarked on 100,000 orders fact table + 10,000 customers dimension table.\n")
-    md_lines.append(
-        "| Operation | Pandas Time (s) | Polars Time (s) | Polars Speedup | Pandas RAM (MB) | Polars RAM (MB) |"
+    header = (
+        "| Operation | Pandas Time (s) | Polars Time (s) | Polars Speedup "
+        "| Pandas RAM (MB) | Polars RAM (MB) |"
     )
-    md_lines.append("| :--- | :--- | :--- | :--- | :--- | :--- |")
+    separator = "| :--- | :--- | :--- | :--- | :--- | :--- |"
+
+    md_lines = [
+        "# Pandas vs. Polars Performance Benchmark Results\n",
+        "Benchmarked on 100,000 orders fact table + 10,000 customers dimension table.\n",
+        header,
+        separator,
+    ]
 
     for r in results:
-        md_lines.append(
-            f"| **{r['operation']}** | {r['pandas_time_s']}s | {r['polars_time_s']}s | **{r['speedup']}x** | {r['pandas_mem_mb']} MB | {r['polars_mem_mb']} MB |"
-        )
+        op = r["operation"]
+        pd_t = r["pandas_time_s"]
+        pl_t = r["polars_time_s"]
+        sp = r["speedup"]
+        pd_m = r["pandas_mem_mb"]
+        pl_m = r["polars_mem_mb"]
+        row_str = f"| **{op}** | {pd_t}s | {pl_t}s | **{sp}x** | {pd_m} MB | {pl_m} MB |"
+        md_lines.append(row_str)
 
     with open(md_path, "w", encoding="utf-8") as file_handle:
         file_handle.write("\n".join(md_lines) + "\n")

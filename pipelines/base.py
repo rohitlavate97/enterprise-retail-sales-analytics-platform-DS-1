@@ -4,10 +4,11 @@ Provides abstract base classes for ETL pipeline stages and context managers for 
 and graceful exception propagation.
 """
 
-from abc import ABC, abstractmethod
-from contextlib import contextmanager
 import time
-from typing import Any, Generator
+from abc import ABC, abstractmethod
+from collections.abc import Generator
+from contextlib import contextmanager
+from typing import Any
 
 from core.logging import get_logger
 

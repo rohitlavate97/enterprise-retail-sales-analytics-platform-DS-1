@@ -4,10 +4,10 @@ Measures memory consumption (tracemalloc) and execution time across multiple sca
 and writes benchmark findings to docs/benchmarks/data_generator.md.
 """
 
-from pathlib import Path
 import sys
 import time
 import tracemalloc
+from pathlib import Path
 
 # Ensure root workspace is on python path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -76,7 +76,9 @@ def run_benchmarks() -> None:
     # Generate Markdown documentation artifact
     md_content = ["# Dataset Generator Benchmark Results\n"]
     md_content.append("Benchmark performed across dataset scale thresholds (seed=42).\n")
-    md_content.append("| Orders Count | Generation Time (s) | Peak Memory (MB) | Throughput (rows/s) |")
+    md_content.append(
+        "| Orders Count | Generation Time (s) | Peak Memory (MB) | Throughput (rows/s) |"
+    )
     md_content.append("| :--- | :--- | :--- | :--- |")
 
     for r in results:

@@ -18,12 +18,14 @@ class MemoryOptimizer:
     """Production memory optimization pass for Pandas DataFrames."""
 
     @staticmethod
-    def optimize(df: pd.DataFrame, categorical_threshold: float = 0.50) -> tuple[pd.DataFrame, dict[str, Any]]:
+    def optimize(
+        df: pd.DataFrame, categorical_threshold: float = 0.50
+    ) -> tuple[pd.DataFrame, dict[str, Any]]:
         """Downcasts numeric columns and converts low-cardinality strings to categorical dtypes.
 
         Args:
             df: Input DataFrame to optimize.
-            categorical_threshold: Ratio of unique string values below which a column is converted to category.
+            categorical_threshold: Threshold ratio of unique string values to convert.
 
         Returns:
             Tuple of (optimized_df, memory_report_dict).
@@ -41,36 +43,38 @@ class MemoryOptimizer:
         num_rows = len(df)
 
         for col in optimized_df.columns:
-            col_type = optimized_df[col].dtype
+            col_series = optimized_df[col]
 
             # 1. Downcast integer columns
-            if np.issubdtype(col_type, np.integer):
-                c_min = optimized_df[col].min()
-                c_max = optimized_df[col].max()
+            if pd.api.types.is_integer_dtype(col_series):
+                c_min = col_series.min()
+                c_max = col_series.max()
                 if c_min >= 0:
                     if c_max < 255:
-                        optimized_df[col] = optimized_df[col].astype(np.uint8)
+                        optimized_df[col] = col_series.astype(np.uint8)
                     elif c_max < 65535:
-                        optimized_df[col] = optimized_df[col].astype(np.uint16)
+                        optimized_df[col] = col_series.astype(np.uint16)
                     elif c_max < 4294967295:
-                        optimized_df[col] = optimized_df[col].astype(np.uint32)
+                        optimized_df[col] = col_series.astype(np.uint32)
                 else:
                     if c_min > np.iinfo(np.int8).min and c_max < np.iinfo(np.int8).max:
-                        optimized_df[col] = optimized_df[col].astype(np.int8)
+                        optimized_df[col] = col_series.astype(np.int8)
                     elif c_min > np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
-                        optimized_df[col] = optimized_df[col].astype(np.int16)
+                        optimized_df[col] = col_series.astype(np.int16)
                     elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
-                        optimized_df[col] = optimized_df[col].astype(np.int32)
+                        optimized_df[col] = col_series.astype(np.int32)
 
             # 2. Downcast float columns (float64 -> float32)
-            elif np.issubdtype(col_type, np.floating):
-                optimized_df[col] = optimized_df[col].astype(np.float32)
+            elif pd.api.types.is_float_dtype(col_series):
+                optimized_df[col] = col_series.astype(np.float32)
 
-            # 3. Convert low-cardinality object strings to categorical
-            elif col_type == object or isinstance(col_type, pd.StringDtype):
-                num_unique = optimized_df[col].nunique(dropna=True)
+            # 3. Convert low-cardinality object/string columns to categorical
+            elif pd.api.types.is_string_dtype(col_series) or pd.api.types.is_object_dtype(
+                col_series
+            ):
+                num_unique = col_series.nunique(dropna=True)
                 if num_rows > 0 and (num_unique / num_rows) < categorical_threshold:
-                    optimized_df[col] = optimized_df[col].astype("category")
+                    optimized_df[col] = col_series.astype("category")
 
         final_mem_bytes = optimized_df.memory_usage(deep=True).sum()
         final_mem_mb = final_mem_bytes / (1024 * 1024)

@@ -1,13 +1,11 @@
 """Schema validation and malformed data quarantine pipeline stage.
 
-Validates Pandas/Polars DataFrames against business domain constraints (non-null primary keys,
-valid numeric boundaries, non-negative amounts). Isolates invalid records into a quarantine data store
-rather than dropping them silently.
+Validates Pandas/Polars DataFrames against business domain constraints (non-null keys,
+valid numeric boundaries). Isolates invalid records into a quarantine data store.
 """
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 
@@ -38,7 +36,9 @@ class SchemaValidator:
         )
         self.quarantine_dir.mkdir(parents=True, exist_ok=True)
 
-    def validate_orders(self, df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, ValidationSummary]:
+    def validate_orders(
+        self, df: pd.DataFrame
+    ) -> tuple[pd.DataFrame, pd.DataFrame, ValidationSummary]:
         """Validates order transactions against schema boundaries.
 
         Validation rules:
