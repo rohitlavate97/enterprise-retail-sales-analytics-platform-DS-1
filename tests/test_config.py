@@ -1,8 +1,11 @@
 """Unit tests for configuration loading and validation."""
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
+
+import pytest
 import yaml
+
 from config.settings import Settings, get_settings
 
 
@@ -38,8 +41,6 @@ def test_custom_yaml_loading() -> None:
 
 def test_environment_variable_override(monkeypatch: pytest.MonkeyPatch) -> None:
     """Test environment variable overriding configuration values."""
-    import pytest  # imported here for type hinting if needed
-
     monkeypatch.setenv("RETAIL_DATA__SEED", "777")
     monkeypatch.setenv("RETAIL_APP__NAME", "Overridden App")
 

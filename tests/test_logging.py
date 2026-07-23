@@ -1,10 +1,9 @@
 """Unit tests for structured logging module."""
 
-import logging
-from pathlib import Path
-import tempfile
 import json
-from core.logging import get_logger, JSONFormatter
+import logging
+
+from core.logging import JSONFormatter, get_logger
 
 
 def test_get_logger_creation() -> None:

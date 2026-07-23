@@ -109,14 +109,13 @@ class Settings(BaseSettings):
     @classmethod
     def load_from_yaml(cls, yaml_path: Path | str | None = None) -> "Settings":
         """Factory method to instantiate Settings populated from YAML file and env overrides."""
-        if yaml_path is None:
-            yaml_path = Path(__file__).parent / "default.yaml"
-        else:
-            yaml_path = Path(yaml_path)
+        target_path = (
+            Path(__file__).parent / "default.yaml" if yaml_path is None else Path(yaml_path)
+        )
 
         data: dict[str, Any] = {}
-        if yaml_path.is_file():
-            with open(yaml_path, encoding="utf-8") as f:
+        if target_path.is_file():
+            with open(target_path, encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
 
         env_overrides = _get_env_overrides()
