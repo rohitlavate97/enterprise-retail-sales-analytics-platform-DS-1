@@ -45,9 +45,7 @@ def ema_list_append(arr: np.ndarray, span: int) -> float:
         t0 = time.perf_counter()
         result: list[float] = [arr[0]]
         for i in range(1, len(arr)):
-            result.append(
-                alpha * arr[i] + (1 - alpha) * result[-1]
-            )
+            result.append(alpha * arr[i] + (1 - alpha) * result[-1])
         times.append(time.perf_counter() - t0)
     return _median(times)
 
@@ -69,9 +67,7 @@ def ema_prealloc(arr: np.ndarray, span: int) -> float:
 # ── 2. Rolling Std: naive window vs cumsum trick ──────────
 
 
-def rolling_std_naive(
-    arr: np.ndarray, window: int
-) -> float:
+def rolling_std_naive(arr: np.ndarray, window: int) -> float:
     """Rolling std using naive inner loop (unoptimized)."""
     times: list[float] = []
     for _ in range(RUNS):
@@ -85,9 +81,7 @@ def rolling_std_naive(
     return _median(times)
 
 
-def rolling_std_cumsum(
-    arr: np.ndarray, window: int
-) -> float:
+def rolling_std_cumsum(arr: np.ndarray, window: int) -> float:
     """Rolling std using cumulative-sum trick (optimized)."""
     times: list[float] = []
     for _ in range(RUNS):
@@ -110,9 +104,7 @@ def rolling_std_cumsum(
 # ── 3. Safe division: loop vs np.where broadcasting ──────
 
 
-def safe_div_loop(
-    num: np.ndarray, den: np.ndarray
-) -> float:
+def safe_div_loop(num: np.ndarray, den: np.ndarray) -> float:
     """Safe division via Python loop (unoptimized)."""
     times: list[float] = []
     for _ in range(RUNS):
@@ -125,9 +117,7 @@ def safe_div_loop(
     return _median(times)
 
 
-def safe_div_broadcast(
-    num: np.ndarray, den: np.ndarray
-) -> float:
+def safe_div_broadcast(num: np.ndarray, den: np.ndarray) -> float:
     """Safe division via np.where broadcasting (optimized)."""
     times: list[float] = []
     for _ in range(RUNS):
@@ -186,26 +176,13 @@ def run_benchmarks() -> None:
     )
 
     # Print
-    print(
-        f"\nHot-Path Optimization Benchmark"
-        f" ({N:,} elements, median of {RUNS} runs)\n"
-    )
-    hdr = (
-        f"{'Optimization':<40}"
-        f"{'Before (s)':>12}"
-        f"{'After (s)':>12}"
-        f"{'Speedup':>10}"
-    )
+    print(f"\nHot-Path Optimization Benchmark ({N:,} elements, median of {RUNS} runs)\n")
+    hdr = f"{'Optimization':<40}{'Before (s)':>12}{'After (s)':>12}{'Speedup':>10}"
     print(hdr)
     print("-" * len(hdr))
     for r in results:
         sp = r["before"] / max(r["after"], 1e-9)
-        print(
-            f"{r['op']:<40}"
-            f"{r['before']:>12.6f}"
-            f"{r['after']:>12.6f}"
-            f"{sp:>9.1f}x"
-        )
+        print(f"{r['op']:<40}{r['before']:>12.6f}{r['after']:>12.6f}{sp:>9.1f}x")
 
     # Write markdown
     doc_dir = Path("docs/benchmarks")
@@ -220,16 +197,9 @@ def run_benchmarks() -> None:
     ]
     for r in results:
         sp = r["before"] / max(r["after"], 1e-9)
-        lines.append(
-            f"| **{r['op']}** "
-            f"| {r['before']:.6f}s "
-            f"| {r['after']:.6f}s "
-            f"| **{sp:.1f}x** |"
-        )
+        lines.append(f"| **{r['op']}** | {r['before']:.6f}s | {r['after']:.6f}s | **{sp:.1f}x** |")
     lines.append("")
-    lines.append(
-        "> All speedups are measured on this project's data."
-    )
+    lines.append("> All speedups are measured on this project's data.")
 
     with open(md, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
