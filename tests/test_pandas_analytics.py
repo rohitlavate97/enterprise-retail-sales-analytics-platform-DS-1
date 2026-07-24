@@ -1,7 +1,8 @@
 """Correctness tests for Pandas advanced analytics layer.
 
-Tests verify aggregations, joins, pivot operations, and resampling
-logic using deterministic, small fixture datasets.
+Tests verify aggregations, joins, pivot operations, resampling,
+and rolling/window trailing-KPI logic using deterministic, small
+fixture datasets.
 """
 
 import pandas as pd
@@ -11,6 +12,7 @@ from analytics.aggregation import SalesAggregator
 from analytics.enrichment import DataEnricher
 from analytics.pivot_analytics import PivotAnalytics
 from analytics.temporal import TemporalAnalytics
+from analytics.window_analytics import WindowKPIAnalytics
 
 
 @pytest.fixture
@@ -236,3 +238,99 @@ class TestTemporalAnalytics:
         # Feb 2023 orders: ORD-4 -> 25.0
         assert res.iloc[0]["total_revenue"] == 67.0
         assert res.iloc[1]["total_revenue"] == 25.0
+
+
+class TestWindowKPIAnalytics:
+    """Tests for WindowKPIAnalytics."""
+
+    @pytest.fixture
+    def resampled(
+        self, sample_data: dict[str, pd.DataFrame]
+    ) -> pd.DataFrame:
+        """Pre-resample the fixture data for window tests."""
+        return TemporalAnalytics.resample_sales(
+            sample_data["orders"],
+            sample_data["time_dim"],
+            rule="ME",
+        )
+
+    def test_trailing_revenue_profit(
+        self, resampled: pd.DataFrame
+    ) -> None:
+        """Trailing sums with window=2."""
+        res = WindowKPIAnalytics.trailing_revenue_profit(
+            resampled, window=2
+        )
+        assert "trailing_2p_revenue" in res.columns
+        assert "trailing_2p_profit" in res.columns
+        # Row 0 (Jan): min_periods=1, so trailing = 67.0
+        assert res.iloc[0]["trailing_2p_revenue"] == 67.0
+        # Row 1 (Feb): 67 + 25 = 92
+        assert res.iloc[1]["trailing_2p_revenue"] == 92.0
+
+    def test_rolling_avg_order_value(
+        self, resampled: pd.DataFrame
+    ) -> None:
+        """Rolling AOV with window=2."""
+        res = WindowKPIAnalytics.rolling_avg_order_value(
+            resampled, window=2
+        )
+        assert "rolling_2p_aov" in res.columns
+        # Row 0 AOV = 67/3 ≈ 22.33 (min_periods=1 → just itself)
+        jan_aov = resampled.iloc[0]["avg_order_value"]
+        assert res.iloc[0]["rolling_2p_aov"] == pytest.approx(
+            jan_aov, abs=1e-2
+        )
+
+    def test_rolling_revenue_volatility(
+        self, resampled: pd.DataFrame
+    ) -> None:
+        """Rolling std with window=2 needs min_periods=2."""
+        res = WindowKPIAnalytics.rolling_revenue_volatility(
+            resampled, window=2
+        )
+        col = "rolling_2p_revenue_std"
+        assert col in res.columns
+        # Row 0: only 1 obs → NaN (min_periods=2)
+        assert pd.isna(res.iloc[0][col])
+        # Row 1: std of [67, 25] ≈ 29.698
+        import numpy as np
+
+        expected_std = np.std([67.0, 25.0], ddof=1)
+        assert res.iloc[1][col] == pytest.approx(
+            expected_std, abs=0.01
+        )
+
+    def test_expanding_cumulative(
+        self, resampled: pd.DataFrame
+    ) -> None:
+        """Expanding cumulative revenue and margin."""
+        res = WindowKPIAnalytics.expanding_cumulative(resampled)
+        assert "cumulative_revenue" in res.columns
+        assert "cumulative_profit" in res.columns
+        assert "cumulative_margin_pct" in res.columns
+        # Row 0: cumulative = 67
+        assert res.iloc[0]["cumulative_revenue"] == 67.0
+        # Row 1: cumulative = 67 + 25 = 92
+        assert res.iloc[1]["cumulative_revenue"] == 92.0
+        # Jan profit = 22, Feb profit = 5 → cum profit = 27
+        assert res.iloc[1]["cumulative_profit"] == 27.0
+        # Margin = 27/92 * 100 ≈ 29.35%
+        assert res.iloc[1]["cumulative_margin_pct"] == pytest.approx(
+            29.35, abs=0.1
+        )
+
+    def test_period_over_period_growth(
+        self, resampled: pd.DataFrame
+    ) -> None:
+        """Period-over-period growth % for revenue."""
+        res = WindowKPIAnalytics.period_over_period_growth(
+            resampled
+        )
+        assert "revenue_growth_pct" in res.columns
+        # Row 0: first period → 0 (fillna)
+        assert res.iloc[0]["revenue_growth_pct"] == 0.0
+        # Row 1: (25 - 67) / 67 * 100 ≈ -62.69%
+        assert res.iloc[1]["revenue_growth_pct"] == pytest.approx(
+            -62.69, abs=0.1
+        )

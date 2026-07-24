@@ -1,12 +1,13 @@
-"""Analytics package — NumPy-powered KPI, statistical, and rolling computations."""
+"""Analytics package — KPI, statistical, rolling, and Pandas analytics."""
 
+from analytics.aggregation import SalesAggregator
+from analytics.enrichment import DataEnricher
 from analytics.kpi_calculator import KPICalculator
+from analytics.pivot_analytics import PivotAnalytics
 from analytics.rolling_stats import RollingStatistics
 from analytics.statistical import StatisticalAnalyzer
-from analytics.aggregation import SalesAggregator
-from analytics.pivot_analytics import PivotAnalytics
-from analytics.enrichment import DataEnricher
 from analytics.temporal import TemporalAnalytics
+from analytics.window_analytics import WindowKPIAnalytics
 
 __all__ = [
     "KPICalculator",
@@ -16,5 +17,6 @@ __all__ = [
     "PivotAnalytics",
     "DataEnricher",
     "TemporalAnalytics",
+    "WindowKPIAnalytics",
 ]
 
